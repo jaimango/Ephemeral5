@@ -324,7 +324,10 @@ function App() {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-4 px-2 sm:px-3 lg:px-4 dark:from-gray-800 dark:to-gray-900">
       <div className="max-w-3xl mx-auto w-full">
         <div className="flex justify-between items-center mb-6">
-          <span className="text-[26px] font-medium text-blue-500 dark:text-blue-400">Ephemeral Notes</span>
+          <div>
+            <span className="text-[26px] font-medium text-blue-500 dark:text-blue-400 block">Ephemeral Notes</span>
+            <span className="text-gray-500 dark:text-gray-400 text-sm italic mt-1 block">Do it. Or let it go.</span>
+          </div>
           <Settings
             defaultTimeLimit={settings.defaultTimeLimit}
             onTimeLimitChange={handleTimeLimitChange}

@@ -36,6 +36,7 @@ export const Settings = ({
     includeCompleted: false,
     includeExpired: false
   });
+  const [aboutModalOpen, setAboutModalOpen] = useState(false);
 
   useEffect(() => {
     setTimeLimit(defaultTimeLimit);
@@ -53,6 +54,14 @@ export const Settings = ({
 
   const closeShareDialog = () => {
     setShareOptions(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const openAboutModal = () => {
+    setAboutModalOpen(true);
+  };
+
+  const closeAboutModal = () => {
+    setAboutModalOpen(false);
   };
 
   const formatTasksForSharing = (tasks: any[]) => {
@@ -234,6 +243,26 @@ export const Settings = ({
                 <span>Share Tasks</span>
               </button>
             </div>
+            <div className="mb-4">
+              <button
+                type="button"
+                onClick={openAboutModal}
+                className="w-full px-4 py-2.5 text-sm text-blue-500 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 dark:text-blue-400 rounded-md flex items-center justify-center space-x-2 transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <span>About</span>
+              </button>
+            </div>
             <div className="flex justify-end space-x-3">
               <button
                 type="button"
@@ -311,6 +340,60 @@ export const Settings = ({
                 disabled={!shareOptions.includeActive && !shareOptions.includeCompleted && !shareOptions.includeExpired}
               >
                 Share
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {aboutModalOpen && (
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-20 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-sm w-full border border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">About</h3>
+              <button 
+                onClick={closeAboutModal}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            
+            <div className="mb-6">
+              <div className="flex items-center mb-4">
+                <div className="h-12 w-12 rounded-full bg-blue-500 flex items-center justify-center mr-3">
+                  <svg 
+                    className="w-7 h-7 text-white" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">Ephemeral Notes</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">v1.0.0</p>
+                </div>
+              </div>
+              
+              <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                Ephemeral Notes is a minimalist task list where every task expires in 24 hours unless completed. Clear clutter automatically, focus on what matters now, and keep a simple history of what you've done. No bloated features — just clean, focused action.
+              </p>
+            </div>
+            
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={closeAboutModal}
+                className="px-4 py-2 text-sm text-blue-500 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 dark:text-blue-400 rounded-md transition-colors"
+              >
+                Close
               </button>
             </div>
           </div>
