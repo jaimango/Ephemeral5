@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { groupTasksByTime, TimeSection, getTimeSection } from '../utils/timeUtils';
 
 interface SettingsProps {
   defaultTimeLimit: number;
@@ -64,41 +65,89 @@ export const Settings = ({
     setAboutModalOpen(false);
   };
 
+  const formatDate = (timestamp: number): string => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString(); // This returns only the date part (no time)
+  };
+
   const formatTasksForSharing = (tasks: any[]) => {
     let result = "My Tasks\n\n";
     
-    // Group tasks by their status
-    const activeTasks = tasks.filter(t => !t.completed && new Date(t.expiresAt).getTime() > Date.now());
-    const completedTasks = tasks.filter(t => t.completed);
-    const expiredTasks = tasks.filter(t => !t.completed && new Date(t.expiresAt).getTime() <= Date.now());
-    
-    // Add active tasks
-    if (shareOptions.includeActive && activeTasks.length > 0) {
-      result += "ACTIVE TASKS:\n";
-      activeTasks.forEach((task, index) => {
-        const expiresAt = new Date(task.expiresAt);
-        result += `${index + 1}. ${task.title} (Expires: ${expiresAt.toLocaleString()})\n`;
-      });
-      result += "\n";
+    // Group active tasks by time section (expiry date)
+    if (shareOptions.includeActive) {
+      const activeTasks = tasks.filter(t => !t.completed && new Date(t.expiresAt).getTime() > Date.now());
+      
+      if (activeTasks.length > 0) {
+        result += "ACTIVE TASKS:\n";
+        
+        // Group by time section
+        const groupedActive = groupTasksByTime(activeTasks, 'expired');
+        const sections: TimeSection[] = ['Today', 'This Week', 'Last Week', 'Last 30 Days', 'Last Year', 'All'];
+        
+        sections.forEach(section => {
+          const sectionTasks = groupedActive[section];
+          if (sectionTasks && sectionTasks.length > 0) {
+            result += `\n${section}:\n`;
+            sectionTasks.forEach((task, index) => {
+              result += `${index + 1}. ${task.title} (Expires: ${formatDate(task.expiresAt)})\n`;
+            });
+          }
+        });
+        
+        result += "\n";
+      }
     }
     
-    // Add completed tasks
-    if (shareOptions.includeCompleted && completedTasks.length > 0) {
-      result += "COMPLETED TASKS:\n";
-      completedTasks.forEach((task, index) => {
-        const completedAt = task.completedAt ? new Date(task.completedAt) : null;
-        result += `${index + 1}. ${task.title}${completedAt ? ` (Completed: ${completedAt.toLocaleString()})` : ''}\n`;
-      });
-      result += "\n";
+    // Group completed tasks by completion date
+    if (shareOptions.includeCompleted) {
+      const completedTasks = tasks.filter(t => t.completed);
+      
+      if (completedTasks.length > 0) {
+        result += "COMPLETED TASKS:\n";
+        
+        // Group by time section
+        const groupedCompleted = groupTasksByTime(completedTasks, 'completed');
+        const sections: TimeSection[] = ['Today', 'This Week', 'Last Week', 'Last 30 Days', 'Last Year', 'All'];
+        
+        sections.forEach(section => {
+          const sectionTasks = groupedCompleted[section];
+          if (sectionTasks && sectionTasks.length > 0) {
+            result += `\n${section}:\n`;
+            sectionTasks.forEach((task, index) => {
+              if (task.completedAt) {
+                result += `${index + 1}. ${task.title} (Completed: ${formatDate(task.completedAt)})\n`;
+              } else {
+                result += `${index + 1}. ${task.title}\n`;
+              }
+            });
+          }
+        });
+        
+        result += "\n";
+      }
     }
     
-    // Add expired tasks
-    if (shareOptions.includeExpired && expiredTasks.length > 0) {
-      result += "EXPIRED TASKS:\n";
-      expiredTasks.forEach((task, index) => {
-        const expiredAt = new Date(task.expiresAt);
-        result += `${index + 1}. ${task.title} (Expired: ${expiredAt.toLocaleString()})\n`;
-      });
+    // Group expired tasks by expiry date
+    if (shareOptions.includeExpired) {
+      const expiredTasks = tasks.filter(t => !t.completed && new Date(t.expiresAt).getTime() <= Date.now());
+      
+      if (expiredTasks.length > 0) {
+        result += "EXPIRED TASKS:\n";
+        
+        // Group by time section
+        const groupedExpired = groupTasksByTime(expiredTasks, 'expired');
+        const sections: TimeSection[] = ['Today', 'This Week', 'Last Week', 'Last 30 Days', 'Last Year', 'All'];
+        
+        sections.forEach(section => {
+          const sectionTasks = groupedExpired[section];
+          if (sectionTasks && sectionTasks.length > 0) {
+            result += `\n${section}:\n`;
+            sectionTasks.forEach((task, index) => {
+              result += `${index + 1}. ${task.title} (Expired: ${formatDate(task.expiresAt)})\n`;
+            });
+          }
+        });
+      }
     }
     
     return result;
