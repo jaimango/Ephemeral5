@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { groupTasksByTime, TimeSection, getTimeSection } from '../utils/timeUtils';
+import { groupTasksByTime, TimeSection } from '../utils/timeUtils';
 
 interface SettingsProps {
   defaultTimeLimit: number;

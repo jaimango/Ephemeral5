@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { Todo } from '../types/todo';
 
