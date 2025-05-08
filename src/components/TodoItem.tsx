@@ -50,12 +50,12 @@ export const TodoItem = ({
   };
 
   const content = (
-    <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100 mb-2">
+    <div className="flex items-center justify-between p-3 sm:p-4 bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow mb-2 transition-all">
       <div className="flex items-center space-x-3 flex-1">
         {status === 'active' && (
           <button
             onClick={() => onComplete(todo.id)}
-            className="w-6 h-6 rounded-full border border-gray-300 hover:border-blue-500 focus:outline-none"
+            className="w-6 h-6 rounded-full border-2 border-blue-400 hover:border-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
             title="Mark as completed"
           />
         )}
@@ -67,7 +67,7 @@ export const TodoItem = ({
             {todo.isRecurring && (
               <span className="ml-2 inline-block" title="Recurring task">
                 <svg 
-                  className="w-4 h-4 text-gray-500 inline" 
+                  className="w-4 h-4 text-blue-500 inline" 
                   viewBox="0 0 24 24" 
                   fill="none" 
                   stroke="currentColor" 
@@ -78,7 +78,7 @@ export const TodoItem = ({
               </span>
             )}
             {status === 'active' && !todo.completed && showTimeRemaining && (
-              <span className="ml-2 text-sm text-gray-500">
+              <span className="ml-2 text-sm text-blue-500 font-medium">
                 {formatTimeRemaining()}
               </span>
             )}
@@ -96,16 +96,16 @@ export const TodoItem = ({
         </div>
       </div>
       
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1 sm:space-x-2">
         {status === 'active' && (
           <>
             <button
               onClick={() => onToggleRepeat(todo.id)}
-              className={`p-2 hover:bg-gray-50 rounded-full ${todo.isRecurring ? 'text-blue-500' : 'text-gray-400'}`}
+              className={`p-2 hover:bg-blue-50 rounded-full transition-colors ${todo.isRecurring ? 'text-blue-500' : 'text-gray-400 hover:text-blue-400'}`}
               title={todo.isRecurring ? "Stop repeating task" : "Make task repeat daily"}
             >
               <svg 
-                className="w-4 h-4" 
+                className="w-5 h-5 sm:w-5 sm:h-5" 
                 viewBox="0 0 24 24" 
                 fill="none" 
                 stroke="currentColor" 
@@ -116,12 +116,12 @@ export const TodoItem = ({
             </button>
             <button
               onClick={() => onReset(todo.id)}
-              className="p-2 hover:bg-gray-50 rounded-full text-gray-400"
+              className="p-2 hover:bg-blue-50 rounded-full text-gray-400 hover:text-blue-400 transition-colors"
               aria-label="Reset timer"
               title="Reset 24-hour timer"
             >
               <svg 
-                className="w-4 h-4" 
+                className="w-5 h-5 sm:w-5 sm:h-5" 
                 viewBox="0 0 24 24" 
                 fill="none" 
                 stroke="currentColor" 
@@ -136,11 +136,11 @@ export const TodoItem = ({
         {status === 'completed' && (
           <button
             onClick={() => onReadd(todo.id)}
-            className="p-2 hover:bg-gray-50 rounded-full text-gray-400"
+            className="p-2 hover:bg-blue-50 rounded-full text-gray-400 hover:text-blue-400 transition-colors"
             title="Restore task"
           >
             <svg 
-              className="w-4 h-4" 
+              className="w-5 h-5 sm:w-5 sm:h-5" 
               viewBox="0 0 24 24" 
               fill="none" 
               stroke="currentColor" 
@@ -154,7 +154,7 @@ export const TodoItem = ({
         {status === 'expired' && (
           <button
             onClick={() => onReadd(todo.id)}
-            className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded hover:bg-gray-200"
+            className="px-3 py-1 text-sm bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
             title="Re-add to active tasks"
           >
             Re-add
@@ -162,12 +162,12 @@ export const TodoItem = ({
         )}
         <button
           onClick={() => onDelete(todo.id)}
-          className="p-2 hover:bg-gray-50 rounded-full text-gray-400"
+          className="p-2 hover:bg-red-50 rounded-full text-gray-400 hover:text-red-500 transition-colors"
           aria-label="Delete task"
           title="Delete task"
         >
           <svg 
-            className="w-4 h-4" 
+            className="w-5 h-5 sm:w-5 sm:h-5" 
             viewBox="0 0 24 24" 
             fill="none" 
             stroke="currentColor" 

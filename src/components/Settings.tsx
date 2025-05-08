@@ -11,6 +11,13 @@ interface SettingsProps {
   onTimeExpiredChange: (show: boolean) => void;
 }
 
+interface ShareOptions {
+  isOpen: boolean;
+  includeActive: boolean;
+  includeCompleted: boolean;
+  includeExpired: boolean;
+}
+
 export const Settings = ({ 
   defaultTimeLimit, 
   onTimeLimitChange,
@@ -23,6 +30,12 @@ export const Settings = ({
 }: SettingsProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [timeLimit, setTimeLimit] = useState(defaultTimeLimit);
+  const [shareOptions, setShareOptions] = useState<ShareOptions>({
+    isOpen: false,
+    includeActive: true,
+    includeCompleted: false,
+    includeExpired: false
+  });
 
   useEffect(() => {
     setTimeLimit(defaultTimeLimit);
@@ -34,32 +47,89 @@ export const Settings = ({
     setIsOpen(false);
   };
 
+  const openShareDialog = () => {
+    setShareOptions(prev => ({ ...prev, isOpen: true }));
+  };
+
+  const closeShareDialog = () => {
+    setShareOptions(prev => ({ ...prev, isOpen: false }));
+  };
+
+  const formatTasksForSharing = (tasks: any[]) => {
+    let result = "My Tasks\n\n";
+    
+    // Group tasks by their status
+    const activeTasks = tasks.filter(t => !t.completed && new Date(t.expiresAt).getTime() > Date.now());
+    const completedTasks = tasks.filter(t => t.completed);
+    const expiredTasks = tasks.filter(t => !t.completed && new Date(t.expiresAt).getTime() <= Date.now());
+    
+    // Add active tasks
+    if (shareOptions.includeActive && activeTasks.length > 0) {
+      result += "ACTIVE TASKS:\n";
+      activeTasks.forEach((task, index) => {
+        const expiresAt = new Date(task.expiresAt);
+        result += `${index + 1}. ${task.title} (Expires: ${expiresAt.toLocaleString()})\n`;
+      });
+      result += "\n";
+    }
+    
+    // Add completed tasks
+    if (shareOptions.includeCompleted && completedTasks.length > 0) {
+      result += "COMPLETED TASKS:\n";
+      completedTasks.forEach((task, index) => {
+        const completedAt = task.completedAt ? new Date(task.completedAt) : null;
+        result += `${index + 1}. ${task.title}${completedAt ? ` (Completed: ${completedAt.toLocaleString()})` : ''}\n`;
+      });
+      result += "\n";
+    }
+    
+    // Add expired tasks
+    if (shareOptions.includeExpired && expiredTasks.length > 0) {
+      result += "EXPIRED TASKS:\n";
+      expiredTasks.forEach((task, index) => {
+        const expiredAt = new Date(task.expiresAt);
+        result += `${index + 1}. ${task.title} (Expired: ${expiredAt.toLocaleString()})\n`;
+      });
+    }
+    
+    return result;
+  };
+
   const handleShare = async () => {
     try {
-      const todos = localStorage.getItem('todos');
-      if (!todos) {
+      const todosJson = localStorage.getItem('todos');
+      if (!todosJson) {
         alert('No tasks to share');
         return;
       }
 
-      const shareData = {
-        title: 'My Tasks',
-        text: 'Check out my tasks!',
-        url: window.location.href
-      };
+      const todos = JSON.parse(todosJson);
+      if (!todos.length) {
+        alert('No tasks to share');
+        return;
+      }
 
+      // Format tasks based on selected options
+      const formattedTasks = formatTasksForSharing(todos);
+
+      // Share the formatted tasks
       if (navigator.share) {
-        await navigator.share(shareData);
+        await navigator.share({
+          title: 'My Tasks',
+          text: formattedTasks,
+        });
       } else {
         // Fallback for browsers that don't support the Web Share API
-        const dummy = document.createElement('input');
+        const dummy = document.createElement('textarea');
         document.body.appendChild(dummy);
-        dummy.value = window.location.href;
+        dummy.value = formattedTasks;
         dummy.select();
         document.execCommand('copy');
         document.body.removeChild(dummy);
-        alert('Link copied to clipboard!');
+        alert('Task list copied to clipboard!');
       }
+      
+      closeShareDialog();
     } catch (error) {
       console.error('Error sharing:', error);
       alert('Failed to share tasks');
@@ -70,11 +140,11 @@ export const Settings = ({
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
+        className="p-2.5 rounded-full hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors dark:hover:bg-gray-700"
         title="Settings"
       >
         <svg
-          className="w-4 h-4 text-gray-500"
+          className="w-5 h-5 text-blue-500 dark:text-blue-400"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -86,7 +156,7 @@ export const Settings = ({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 z-10">
+        <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 z-10 border border-gray-100 dark:border-gray-700">
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="timeLimit" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -147,11 +217,11 @@ export const Settings = ({
             <div className="mb-4">
               <button
                 type="button"
-                onClick={handleShare}
-                className="w-full px-4 py-2 text-sm text-blue-400 bg-blue-400/10 hover:bg-blue-400/20 rounded-md flex items-center justify-center space-x-2"
+                onClick={openShareDialog}
+                className="w-full px-4 py-2.5 text-sm text-blue-500 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 dark:text-blue-400 rounded-md flex items-center justify-center space-x-2 transition-colors"
               >
                 <svg
-                  className="w-4 h-4"
+                  className="w-5 h-5"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -164,22 +234,86 @@ export const Settings = ({
                 <span>Share Tasks</span>
               </button>
             </div>
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end space-x-3">
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm text-blue-400 bg-blue-400/10 hover:bg-blue-400/20 rounded-md"
+                className="px-4 py-2 text-sm text-blue-500 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 dark:text-blue-400 rounded-md transition-colors"
               >
                 Save
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {shareOptions.isOpen && (
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-20 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-5 max-w-sm w-full border border-gray-100 dark:border-gray-700">
+            <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-gray-100">Select tasks to share</h3>
+            
+            <div className="space-y-4 mb-6">
+              <label className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  checked={shareOptions.includeActive}
+                  onChange={(e) => setShareOptions(prev => ({ ...prev, includeActive: e.target.checked }))}
+                  className="rounded border-gray-300 text-blue-500 focus:ring-blue-500 w-5 h-5"
+                />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Include active tasks
+                </span>
+              </label>
+              
+              <label className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  checked={shareOptions.includeCompleted}
+                  onChange={(e) => setShareOptions(prev => ({ ...prev, includeCompleted: e.target.checked }))}
+                  className="rounded border-gray-300 text-blue-500 focus:ring-blue-500 w-5 h-5"
+                />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Include completed tasks
+                </span>
+              </label>
+              
+              <label className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  checked={shareOptions.includeExpired}
+                  onChange={(e) => setShareOptions(prev => ({ ...prev, includeExpired: e.target.checked }))}
+                  className="rounded border-gray-300 text-blue-500 focus:ring-blue-500 w-5 h-5"
+                />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Include expired tasks
+                </span>
+              </label>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={closeShareDialog}
+                className="px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleShare}
+                className="px-4 py-2.5 text-sm text-blue-500 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 dark:text-blue-400 rounded-md transition-colors"
+                disabled={!shareOptions.includeActive && !shareOptions.includeCompleted && !shareOptions.includeExpired}
+              >
+                Share
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

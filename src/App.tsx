@@ -210,8 +210,8 @@ function App() {
     if (tasks.length === 0) return null;
     
     return (
-      <div key={section} className="mb-3 w-full">
-        <h2 className="text-sm font-semibold text-gray-700 mb-2">{section}</h2>
+      <div key={section} className="mb-6 w-full">
+        <h2 className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-3 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-md inline-block">{section}</h2>
         <div className="space-y-1 w-full">
           {tasks.map((todo, index) => (
             <TodoItem
@@ -264,8 +264,20 @@ function App() {
                   ))}
                   {provided.placeholder}
                   {filteredTodos.length === 0 && (
-                    <div className="text-center text-gray-500 py-4 w-full">
-                      No active tasks
+                    <div className="text-center text-gray-500 py-8 px-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                      <svg 
+                        className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="1"
+                      >
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                      </svg>
+                      <p className="text-lg font-medium">No active tasks</p>
+                      <p className="mt-1">Add a new task to get started</p>
                     </div>
                   )}
                 </div>
@@ -283,8 +295,25 @@ function App() {
       <div className="w-full">
         {sections.map(section => renderTimeSection(section, groupedTasks[section]))}
         {filteredTodos.length === 0 && (
-          <div className="text-center text-gray-500 py-4 w-full">
-            No {activeTab} tasks
+          <div className="text-center text-gray-500 py-8 px-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <svg 
+              className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="1"
+            >
+              {activeTab === 'completed' ? (
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              ) : (
+                <path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm0 0V8"></path>
+              )}
+              {activeTab === 'completed' && <polyline points="22 4 12 14.01 9 11.01"></polyline>}
+            </svg>
+            <p className="text-lg font-medium">No {activeTab} tasks</p>
+            <p className="mt-1">
+              {activeTab === 'completed' ? 'Complete a task to see it here' : 'No tasks have expired yet'}
+            </p>
           </div>
         )}
       </div>
@@ -292,10 +321,10 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-4 px-2 sm:px-3 lg:px-4">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-4 px-2 sm:px-3 lg:px-4 dark:from-gray-800 dark:to-gray-900">
       <div className="max-w-3xl mx-auto w-full">
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-[26px] font-normal text-gray-500 dark:text-gray-400">Ephemeral Notes</span>
+        <div className="flex justify-between items-center mb-6">
+          <span className="text-[26px] font-medium text-blue-500 dark:text-blue-400">Ephemeral Notes</span>
           <Settings
             defaultTimeLimit={settings.defaultTimeLimit}
             onTimeLimitChange={handleTimeLimitChange}
@@ -308,34 +337,34 @@ function App() {
           />
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm p-3 mb-4 w-full">
-          <div className="w-full grid grid-cols-3 gap-4 mb-3">
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 mb-4 w-full dark:bg-gray-800 transition-all">
+          <div className="w-full grid grid-cols-3 gap-2 sm:gap-4 mb-4">
             <button
               onClick={() => setActiveTab('active')}
-              className={`px-6 py-2 text-base rounded w-full ${
+              className={`px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base rounded-lg w-full font-medium transition-colors ${
                 activeTab === 'active' 
-                  ? 'bg-blue-500 text-blue-300' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-blue-500 text-white shadow-sm' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               Active
             </button>
             <button
               onClick={() => setActiveTab('completed')}
-              className={`px-6 py-2 text-base rounded w-full ${
+              className={`px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base rounded-lg w-full font-medium transition-colors ${
                 activeTab === 'completed' 
-                  ? 'bg-blue-500 text-blue-300' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-blue-500 text-white shadow-sm' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               Completed
             </button>
             <button
               onClick={() => setActiveTab('expired')}
-              className={`px-6 py-2 text-base rounded w-full ${
+              className={`px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base rounded-lg w-full font-medium transition-colors ${
                 activeTab === 'expired' 
-                  ? 'bg-blue-500 text-blue-300' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-blue-500 text-white shadow-sm' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               Expired
@@ -350,17 +379,26 @@ function App() {
                 onChange={(e) => setNewTodo(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Add a new task..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
               <button
                 onClick={() => addTodo(newTodo)}
-                className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-colors"
               >
-                +
+                <svg 
+                  className="w-5 h-5" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
               </button>
             </div>
           ) : (
-            <div className="h-[42px]"></div> // Height placeholder to maintain consistent layout
+            <div className="h-[50px]"></div> // Height placeholder to maintain consistent layout
           )}
         </div>
 
